@@ -1,0 +1,48 @@
+
+
+img {
+  width:auto;
+}
+
+div.image {
+  text-align: center;
+  background-color: #0d0d0d;
+}
+
+div.intro {
+  padding: 25px;
+  font-size: 50px;
+  text-align: center;
+  font-family: 'Old Standard TT', serif;
+  font-weight: 700;
+  letter-spacing: 25px;
+  background-color: #006080;
+}
+
+div.librarytitle{
+  padding: 15px;
+  font-size: 25px;
+}
+
+li.albumname {
+  font-size: 17px;
+  font-family: 'Montserrat', sans-serif;
+  font-style: normal;
+  font-weight: 500;
+  list-style-type: none;
+}
+
+li.trackname {
+  font-family: 'Raleway', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  margin-left: 25px;
+}
+
+p.albummetadata{
+  padding: 0;
+  margin: 5px;
+  margin-left: 25px;
+  font-size: 12px;
+  text-align: left;
+}
