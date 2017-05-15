@@ -29,16 +29,27 @@ class album:
         trackList = os.listdir(os.path.join(musicLocation, album))
         for song in trackList:
             if '.jpg' in song: continue
-            print(song)
             songMetadata = mutagen.File(os.path.join(musicLocation, album, song))
             if self.albumTitle is None:
-                self.albumTitle = "".join(songMetadata['album'])
+                try:
+                    self.albumTitle = "".join(songMetadata['album'])
+                except:
+                    self.albumTitle = None
             if self.albumYear is None:
-                self.albumYear = "".join(songMetadata['date'])
+                try:
+                    self.albumYear = "".join(songMetadata['date'])
+                except:
+                    self.albumYear = None
             if self.albumGenre is None:
-                self.albumGenre = "".join(songMetadata['genre'])
+                try:
+                    self.albumGenre = "".join(songMetadata['genre'])
+                except:
+                    self.albumGenre = None
             if self.albumArtist is None:
-                self.albumArtist = "".join(songMetadata['artist'])
+                try:
+                    self.albumArtist = "".join(songMetadata['artist'])
+                except:
+                    self.albumArtist = None
             self.songList.append((int("".join(songMetadata['tracknumber'])), song))
 
 MDsMusic = musicLibrary('/usr/media')
