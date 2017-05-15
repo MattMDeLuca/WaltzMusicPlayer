@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title> Test Page </title>
+
+  </head>
+  <body>
+      <p> <b> Test page 1111111 </b> </p>
+      {% for k, v in song_list.items() %}
+      <details>
+      <summary> {{k}} </summary>
+      {% for song in v.songList %}
+        <li id="{{song[1]}}" data-value="/media/{{k}}/{{song[1]}}"> <button onclick = "updateSource('{{song[1]}}')">{{ song[1] }} </li>
+        <li> </li>
+        {% endfor %}
+      </details>
+      {% endfor %}
+      <ul> <li> testing 1 <details> album name </details> </li> </ul
+    <p> <a href='/media/testalbum2/0013_MGS19_TN_08copy.mp3'> Click here to play. </a> </p>
+    <audio id='player' controls="controls">
+      <source id ='file' src=""> </source>
+    </audio>
+
+
+
+  <script type="text/javascript">
+
+  function updateSource(songt){
+    var audio = document.getElementById('player');
+    var source = document.getElementById('file');
+    source.src = document.getElementById(songt).getAttribute('data-value');
+    audio.pause();
+    audio.load();
+    audio.play();
+  }
+</script>
+  </body>
+  </html>
