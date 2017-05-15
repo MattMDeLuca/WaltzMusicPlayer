@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel='stylesheet' href='static/styles.css'>
+  <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Old+Standard+TT" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
+
+</head>
+<body>
+  <div class=image> <img src='static/2013MusicHistory1020113-2.gif'> </div>
+  <div class='intro'> WALTZ </div>
+  <div class=librarytitle> YOUR MUSIC LIBRARY: </div>
+  <ul>
+      {% for k, v in song_list.items() %}
+      <li class=albumname> <details> <summary> {{k}} </summary>
+        <p class=albummetadata> {{v.albumArtist}} | {{v.albumYear}} | {{v.albumGenre}} </p>
+        <ol>
+        {% for song in v.songList %}
+
+        <li class=trackname id = "{{song[1]}}" data-value="/media/{{k}}/{{song[1]}}">
+          <button onclick = "updateSource('{{song[1]}}')"> {{song[1]}} </li>
+        {% endfor %} </ol>
+        </details> </li>
+      {% endfor %}
+
+  </ol>
+  <div>
+    <p> </p>
+    #music player
+    <audio id='player' controls="controls">
+    <source id ='file' src=""> </source>
+  </audio> </div>
+
+
+  <script type="text/javascript">
+
+function updateSource(songt){
+  var audio = document.getElementById('player');
+  var source = document.getElementById('file');
+  source.src = document.getElementById(songt).getAttribute('data-value');
+  audio.pause();
+  audio.load();
+  audio.play();
+}
+</script>
+</body>
+</html>
