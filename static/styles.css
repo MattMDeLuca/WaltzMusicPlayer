@@ -19,6 +19,24 @@ div.intro {
   background-color: #006080;
 }
 
+nav {
+  background-color:#ff5c33;
+  margin: 0;
+}
+
+nav ul {
+  margin: 0;
+}
+nav ul li{
+  display:inline-block;
+  list-style-type: none;
+  padding-left: 5px;
+  padding-right: 5px;
+  font-family: 'Raleway', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+}
+
 div.librarytitle{
   padding: 15px;
   font-size: 25px;
@@ -45,4 +63,14 @@ p.albummetadata{
   margin-left: 25px;
   font-size: 12px;
   text-align: left;
+  font-weight: bold;
+}
+
+a.button {
+    -webkit-appearance: button;
+    -moz-appearance: button;
+    appearance: button;
+    text-align: center;
+    text-decoration: none;
+    color: initial;
 }
