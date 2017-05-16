@@ -30,7 +30,9 @@ class album:
         trackList = os.listdir(os.path.join(musicLocation, album))
         for song in trackList:
             if '.jpg' in song: continue
+            if '.log' in song: continue
             songMetadata = mutagen.File(os.path.join(musicLocation, album, song))
+
             if self.albumTitle is None and 'albumTitle' not in self.errorsFound:
                 try:
                     self.albumTitle = "".join(songMetadata['album'])
@@ -56,7 +58,7 @@ class album:
             except:
                 self.errorsFound.append('Missing Track Number')
                 self.songList.append(song)
-                
+
     def errorReporting(self):
         return self.errorsFound
 
@@ -66,13 +68,29 @@ MDsMusic.listAlbums()
 for k in MDsMusic.albumDict.keys():
     MDsMusic.updateAlbumDict(k, album())
     MDsMusic.albumDict[k].updateAlbumMetadata(k, MDsMusic.musicLocation)
-    print(MDsMusic.albumDict[k].albumTitle)
+
+firstV = []
+secondV = []
+
+for k, v in MDsMusic.albumDict.items():
+    firstV.append(v)
+    if len(firstV) == 20: break
+
+for k, v in MDsMusic.albumDict.items():
+    if v not in firstV:
+        secondV.append(v)
+
 
 waltz = Flask(__name__)
 
 @waltz.route("/")
 def main():
-    return render_template('newsite.html', song_list=MDsMusic.albumDict)
+    return render_template('newsite.html', song_list=firstV)
+
+@waltz.route('/more')
+def moreSongs():
+    song_list = secondV
+    return render_template('newsite.html', song_list=secondV)
 
 
 if __name__ == '__main__':
