@@ -24,33 +24,41 @@ class album:
         self.albumGenre = None
         self.albumArtist = None
         self.songList = []
+        self.errorsFound = []
 
     def updateAlbumMetadata (self, album, musicLocation):
         trackList = os.listdir(os.path.join(musicLocation, album))
         for song in trackList:
             if '.jpg' in song: continue
             songMetadata = mutagen.File(os.path.join(musicLocation, album, song))
-            if self.albumTitle is None:
+            if self.albumTitle is None and 'albumTitle' not in self.errorsFound:
                 try:
                     self.albumTitle = "".join(songMetadata['album'])
                 except:
-                    self.albumTitle = None
-            if self.albumYear is None:
+                    self.errorsFound.append('albumTitle')
+            if self.albumYear is None and 'albumYear' not in self.errorsFound:
                 try:
                     self.albumYear = "".join(songMetadata['date'])
                 except:
-                    self.albumYear = None
-            if self.albumGenre is None:
+                    self.errorsFound.append('albumYear')
+            if self.albumGenre is None and 'albumGenre' not in self.errorsFound:
                 try:
                     self.albumGenre = "".join(songMetadata['genre'])
                 except:
-                    self.albumGenre = None
-            if self.albumArtist is None:
+                    self.errorsFound.append('albumGenre')
+            if self.albumArtist is None and 'albumArtist' not in self.errorsFound:
                 try:
                     self.albumArtist = "".join(songMetadata['artist'])
                 except:
-                    self.albumArtist = None
-            self.songList.append((int("".join(songMetadata['tracknumber'])), song))
+                    self.errorsFound.append('albumArtist')
+            try:
+                self.songList.append((int("".join(songMetadata['tracknumber'])), song))
+            except:
+                self.errorsFound.append('Missing Track Number')
+                self.songList.append(song)
+                
+    def errorReporting(self):
+        return self.errorsFound
 
 MDsMusic = musicLibrary('/usr/media')
 MDsMusic.listAlbums()
