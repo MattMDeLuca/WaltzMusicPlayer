@@ -14,18 +14,18 @@
     <ul>
       <li> Sort by album </li>
       <li> Sort by year </li>
-      <li> Sort by artist </li>
+      <li> <a href=/artists> Sort by artist </a> </li>
     </ul>
   </nav>
   <div class=librarytitle> YOUR MUSIC LIBRARY: </div>
   <div class=albumlisting>
   <img id ='albumArt' src='' style="float:right; width:50%">
   <ul>
-      {% for v in song_list %}
-      <li class=albumname> <details onclick= "updateAlbumArt('static/Led Zeppelin - BBC Sessions.jpg')"> <summary> {{v.albumTitle}} </summary>
-        <p class=albummetadata> {{v.albumArtist}} | {{v.albumYear}} | {{v.albumGenre}} </p>
+      {% for rank, album in song_list_sorted|sort %}
+      <li class=albumname> <details onclick= "updateAlbumArt('static/Led Zeppelin - BBC Sessions.jpg')"> <summary> {{library_dict[album].albumTitle}} </summary>
+        <p class=albummetadata> {{library_dict[album].albumArtist}} | {{library_dict[album].albumYear}} | {{library_dict[album].albumGenre}} </p>
         <ol>
-        {% for song in v.songList %}
+        {% for song in library_dict[album].songList %}
         <li class=trackname id = "{{song[1]}}" data-value="/media/{{k}}/{{song[1]}}">
           <button onclick = "updateSource('{{song[1]}}')"> {{song[1]}} </li>
         {% endfor %} </ol>
