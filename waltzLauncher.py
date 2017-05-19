@@ -55,6 +55,7 @@ class album:
         self.albumYear = None
         self.albumGenre = None
         self.albumArtist = None
+        self.albumImage = None
         self.songList = []
         self.errorsFound = []
 
@@ -89,6 +90,16 @@ class album:
             except:
                 self.errorsFound.append('Missing Track Number')
                 self.songList.append(song)
+            if self.albumImage is None and 'albumImage' not in self.errorsFound:
+                try:
+                    for item in songMetadata.pictures:
+                        if 'jpeg' in item.mime:
+                            artfilepath = os.path.join(musicLocation, album, "{}_album_art.jpg".format("".join(songMetadata['album'])))
+                            albumartFile = open(artfilepath, 'wb')
+                            albumartFile.write(item.data)
+                            self.albumImage = artfilepath
+                except:
+                    self.errorsFound.append('Missing Album Image')
 
     def errorReporting(self):
         return self.errorsFound
@@ -103,6 +114,9 @@ for k in MDsMusic.albumDict.keys():
 MDsMusic.sortbyAlbum()
 MDsMusic.sortbyArtist()
 MDsMusic.sortbyYear()
+
+for k, v in MDsMusic.albumDict.items():
+    print(v.albumImage)
 
 
 
