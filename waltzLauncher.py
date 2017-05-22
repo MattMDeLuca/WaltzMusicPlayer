@@ -10,7 +10,7 @@ class musicLibrary:
         self.albumSorted = []
         self.artistSorted = []
         self.yearSorted = []
-        self.librarySize = None
+        self.librarySize = len(self.albumDict)
 
     def listAlbums(self):
         albumList = os.listdir(self.musicLocation)
@@ -104,6 +104,17 @@ class album:
     def errorReporting(self):
         return self.errorsFound
 
+
+def albumListSlicer(cP, numberofPages, totalAlbums):
+    if cP > int(numberofPages[0]):
+        beginSlice = 20*(cP - 1)
+        endSlice = (0.1*int(numberofPages[2])*20) + beginSlice
+        return (beginSlice, endSlice)
+    else:
+        return (20*cP, (20*cP)+20)
+
+
+
 MDsMusic = musicLibrary('/usr/media')
 MDsMusic.listAlbums()
 
@@ -115,44 +126,58 @@ MDsMusic.sortbyAlbum()
 MDsMusic.sortbyArtist()
 MDsMusic.sortbyYear()
 
-for k, v in MDsMusic.albumDict.items():
-    print(v.albumImage)
-
 
 
 waltz = Flask(__name__)
 
+waltz.secret_key='notsecret'
+
 @waltz.route("/")
 def main():
-    session['currentPage'] = 1
-    session['totalPages'] = MDsMusic.librarySize/20
-    return render_template('newsite.html', song_list_sorted=MDsMusic.albumSorted[0:20], library_dict=MDsMusic.albumDict)
+    session['currentPage'] = 0
+    return render_template('newsite.html', song_list_sorted=MDsMusic.albumSorted[0:20],
+    library_dict=MDsMusic.albumDict, previousButton='/', moreButton='/more_albums')
 
-@waltz.route('/more')
-def moreSongs():
-    currentPage = session.get('currentPage', None)
-    totalPages = session.get('totalPages', None)
-    if currentPage <= totalPages:
-        return render_template('newsite.html', song_list_sorted=MDsMusic.albumSorted[(currentPage*20):(currentPage*20+20)],
-        library_dict=MDsMusic.albumDict)
-        session['currentPage'] += 1
-    else:
-        return render_template('newsite.html', song_list_sorted=MDsMusic.albumSorted[(currentPage*20):(currentPage*20+20)],
-        library_dict=MDsMusic.albumDict)
+@waltz.route('/more_albums')
+def moreAlbums():
+    session['currentPage'] +=1
+    slices = albumListSlicer(session['currentPage'], str(MDsMusic.librarySize/20), MDsMusic.librarySize)
+    if session['currentPage'] < int(MDsMusic.librarySize/20): session['currentPage'] +=1
+    return render_template('newsite.html', song_list_sorted=MDsMusic.albumSorted[slices[0]:slices[1]],
+    library_dict=MDsMusic.albumDict, previousButton='/previous_albums', moreButton='/more_albums')
 
-waltz.secret_key='notsecret'
+@waltz.route('/previous_albums')
+def previousAlbums():
+    session['currentPage'] -=1
+    slices = albumListSlicer(session['currentPage'], str(MDsMusic.librarySize/20), MDsMusic.librarySize)
+    return render_template('newsite.html', song_list_sorted=MDsMusic.albumSorted[slices[0]:slices[1]],
+    library_dict=MDsMusic.albumDict, previousButton='/previous_albums', moreButton='/more_albums')
+
+
 
 @waltz.route('/artists')
 def loadArtists():
-    session['currentPage'] = 1
-    session['totalPages'] = MDsMusic.librarySize/20
-    return render_template('newsite.html', song_list_sorted=MDsMusic.artistSorted[0:20], library_dict=MDsMusic.albumDict)
+    session['currentPage'] = 0
+    return render_template('newsite.html', song_list_sorted=MDsMusic.artistSorted[0:20],
+    library_dict=MDsMusic.albumDict, previousButton='/previous_artists', moreButton='/more_artists')
 
-@waltz.route('/moreartists')
-def loadMoreArtists():
-    currentPage = session.get('currentPage', None)
-    totalPages = session.get('totalPages', None)
-    return render_template('newsite.html', song_list_sorted=MDsMusic.artistSorted[(currentPage*20):(currentPage*20+20)], library_dict=MDsMusic.albumDict)
+
+@waltz.route('/more_artists')
+def moreArtists():
+    session['currentPage'] +=1
+    slices = albumListSlicer(session['currentPage'], str(MDsMusic.librarySize/20), MDsMusic.librarySize)
+    if session['currentPage'] < int(MDsMusic.librarySize/20): session['currentPage'] +=1
+    return render_template('newsite.html', song_list_sorted=MDsMusic.artistSorted[slices[0]:slices[1]],
+    library_dict=MDsMusic.albumDict, previousButton='/previous_artists', moreButton='/more_artists')
+
+
+@waltz.route('/previous_artists')
+def previousArtists():
+    session['currentPage'] -=1
+    slices = albumListSlicer(session['currentPage'], str(MDsMusic.librarySize/20), MDsMusic.librarySize)
+    return render_template('newsite.html', song_list_sorted=MDsMusic.artistSorted[slices[0]:slices[1]],
+    library_dict=MDsMusic.albumDict, previousButton='/previous_artists', moreButton='/more_artists')
+
 
 #@waltz.route('/year')
 #def loadYear():
