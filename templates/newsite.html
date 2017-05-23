@@ -12,8 +12,8 @@
   <div class='intro'> WALTZ </div>
   <nav>
     <ul>
-      <li> Sort by album </li>
-      <li> Sort by year </li>
+      <li> <a href=/> Sort by album </a> </li>
+      <li> <a href=/years> Sort by year </a> </li>
       <li> <a href=/artists> Sort by artist </a> </li>
     </ul>
   </nav>
@@ -22,7 +22,7 @@
   <img id ='albumArt' src='' style="float:right; width:50%">
   <ul>
       {% for rank, album in song_list_sorted|sort %}
-      <li class=albumname> <details onclick= "updateAlbumArt('static/Led Zeppelin - BBC Sessions.jpg')"> <summary> {{library_dict[album].albumTitle}} </summary>
+      <li class=albumname> <details onclick= "updateAlbumArt('{{library_dict[album].albumImage}}')"> <summary> {{library_dict[album].albumTitle}} </summary>
         <p class=albummetadata> {{library_dict[album].albumArtist}} | {{library_dict[album].albumYear}} | {{library_dict[album].albumGenre}} </p>
         <ol>
         {% for song in library_dict[album].songList %}
