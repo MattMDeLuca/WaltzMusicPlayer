@@ -13,17 +13,18 @@ class MusicLibrary:
         self.album_sorted = []
         self.artist_sorted = []
         self.year_sorted = []
-        self.sort_by_album()
-        self.sort_by_artist()
-        self.sort_by_year()
         self.library_size = len(self.album_dict)
 
     def main(self):
+        self.list_albums()
+
         for key in self.album_dict.keys():
             self.update_album_dict(key, Album())
             self.album_dict[key].update_metadata(key, self.music_location)
 
-        self.list_albums()
+        self.sort_by_album()
+        self.sort_by_artist()
+        self.sort_by_year()
         self.waltz.run()
 
     def list_albums(self):
