@@ -1,6 +1,8 @@
 from flask import Flask, render_template, session
+import datetime
 import mutagen
 import os
+import logging
 
 
 class MusicLibrary:
@@ -8,6 +10,10 @@ class MusicLibrary:
     waltz.secret_key = 'notsecret'
 
     def __init__(self, music_location):
+        logging.basicConfig(filename='{}.log'.format(datetime.date.today()),
+                            format="[%(levelname)8s] %(message)s",
+                            level=logging.DEBUG
+                            )
         self.album_dict = {}
         self.music_location = music_location
         self.album_sorted = []
@@ -216,28 +222,33 @@ class Album:
             if self.title is None and 'albumTitle' not in self.errors_found:
                 try:
                     self.title = "".join(song_metadata['album'])
-                except:
+                except Exception as msg:
+                    logging.exception(msg)
                     self.errors_found.append('albumTitle')
             if self.year is None and 'year' not in self.errors_found:
                 try:
                     self.year = "".join(song_metadata['date'])
-                except:
+                except Exception as msg:
+                    logging.exception(msg)
                     self.errors_found.append('year')
 
             if self.genre is None and 'genre' not in self.errors_found:
                 try:
                     self.genre = "".join(song_metadata['genre'])
-                except:
+                except Exception as msg:
+                    logging.exception(msg)
                     self.errors_found.append('genre')
 
             if self.artist is None and 'artist' not in self.errors_found:
                 try:
                     self.artist = "".join(song_metadata['artist'])
-                except:
+                except Exception as msg:
+                    logging.exception(msg)
                     self.errors_found.append('artist')
             try:
                 self.song_list.append((int("".join(song_metadata['tracknumber'])), song))
-            except:
+            except Exception as msg:
+                logging.exception(msg)
                 self.errors_found.append('Missing Track Number')
                 self.song_list.append(song)
 
@@ -254,7 +265,8 @@ class Album:
                             album_art_file = open(art_file_path, 'wb')
                             album_art_file.write(item.data)
                             self.image = art_file_path
-                except:
+                except Exception as msg:
+                    logging.exception(msg)
                     self.errors_found.append('Missing Album Image')
 
     def error_reporting(self):
