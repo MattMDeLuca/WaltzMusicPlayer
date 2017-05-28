@@ -3,212 +3,281 @@ import mutagen
 import os
 
 
-class musicLibrary:
-    def __init__(self, musicLocation):
-        self.albumDict = {}
-        self.musicLocation = musicLocation
-        self.albumSorted = []
-        self.artistSorted = []
-        self.yearSorted = []
-        self.librarySize = len(self.albumDict)
+class MusicLibrary:
+    def __init__(self, music_location):
+        self.album_dict = {}
+        self.music_location = music_location
+        self.album_sorted = []
+        self.artist_sorted = []
+        self.year_sorted = []
+        self.library_size = len(self.album_dict)
 
-    def listAlbums(self):
-        albumList = os.listdir(self.musicLocation)
-        if '.DS_Store' in albumList: albumList.remove('.DS_Store')
-        for album in albumList:
-            self.albumDict[album] = None
-        self.librarySize = len(self.albumDict)
+    def list_albums(self):
+        album_list = os.listdir(self.music_location)
+        if '.DS_Store' in album_list:
+            album_list.remove('.DS_Store')
+        for album in album_list:
+            self.album_dict[album] = {}
+        self.library_size = len(self.album_dict)
 
-    def updateAlbumDict(self, album, instance):
-        self.albumDict[album] = instance
+    def update_album_dict(self, album, instance):
+        self.album_dict[album] = instance
 
-    def sortbyAlbum(self):
+    def sort_by_album(self):
         count = 0
-        for key in sorted(self.albumDict.keys()):
-            count +=1
-            self.albumSorted.append((count, key))
+        for album in sorted(self.album_dict.keys()):
+            count += 1
+            self.album_sorted.append((count, album))
 
-    def sortbyArtist(self):
-        artistList = []
+    def sort_by_artist(self):
+        artist_list = []
         count = 0
-        for key in self.albumDict.keys():
-            if self.albumDict[key].albumArtist is None: continue
-            artistList.append((self.albumDict[key].albumArtist, key))
-        for item in sorted(artistList, key=lambda tup: tup[0]):
-            count +=1
-            self.artistSorted.append((count, item[1]))
+        for album in self.album_dict.keys():
+            if self.album_dict[album].artist is None:
+                continue
+            artist_list.append((self.album_dict[album].artist, album))
+        for item in sorted(artist_list, key=lambda tup: tup[0]):
+            count += 1
+            self.artist_sorted.append((count, item[1]))
 
-    def sortbyYear(self):
-        yearList = []
+    def sort_by_year(self):
+        year_list = []
         count = 0
-        for key in self.albumDict.keys():
-            if self.albumDict[key].albumYear is None: continue
-            yearList.append((self.albumDict[key].albumYear, key))
-        for item in sorted(yearList, key=lambda tup: tup[0]):
-            count +=1
-            self.yearSorted.append((count, item[1]))
+        for album in self.album_dict.keys():
+            if self.album_dict[album].year is None:
+                continue
+            year_list.append((self.album_dict[album].year, album))
+        for item in sorted(year_list, key=lambda tup: tup[0]):
+            count += 1
+            self.year_sorted.append((count, item[1]))
 
 
-class album:
+class Album:
     def __init__(self):
-        self.albumTitle = None
-        self.albumYear = None
-        self.albumGenre = None
-        self.albumArtist = None
-        self.albumImage = None
-        self.songList = []
-        self.errorsFound = []
+        self.title = None
+        self.year = None
+        self.genre = None
+        self.artist = None
+        self.image = None
+        self.song_list = []
+        self.errors_found = []
 
-    def updateAlbumMetadata (self, album, musicLocation):
-        trackList = os.listdir(os.path.join(musicLocation, album))
-        for song in trackList:
-            if '.jpg' in song: continue
-            if '.log' in song: continue
-            if '.DS_Store' in song: continue
-            songMetadata = mutagen.File(os.path.join(musicLocation, album, song))
-            if self.albumTitle is None and 'albumTitle' not in self.errorsFound:
+    def update_metadata(self, album, music_location):
+        track_list = os.listdir(os.path.join(music_location, album))
+
+        # remove items that are not songs from the track_list
+        track_list = [x for x in track_list for y in ['.jpg', '.log', '.DS_Store'] if y not in x]
+
+        for song in track_list:
+            song_metadata = mutagen.File(os.path.join(music_location, album, song))
+            if self.title is None and 'albumTitle' not in self.errors_found:
                 try:
-                    self.albumTitle = "".join(songMetadata['album'])
+                    self.title = "".join(song_metadata['album'])
                 except:
-                    self.errorsFound.append('albumTitle')
-            if self.albumYear is None and 'albumYear' not in self.errorsFound:
+                    self.errors_found.append('albumTitle')
+            if self.year is None and 'year' not in self.errors_found:
                 try:
-                    self.albumYear = "".join(songMetadata['date'])
+                    self.year = "".join(song_metadata['date'])
                 except:
-                    self.errorsFound.append('albumYear')
-            if self.albumGenre is None and 'albumGenre' not in self.errorsFound:
+                    self.errors_found.append('year')
+
+            if self.genre is None and 'genre' not in self.errors_found:
                 try:
-                    self.albumGenre = "".join(songMetadata['genre'])
+                    self.genre = "".join(song_metadata['genre'])
                 except:
-                    self.errorsFound.append('albumGenre')
-            if self.albumArtist is None and 'albumArtist' not in self.errorsFound:
+                    self.errors_found.append('genre')
+
+            if self.artist is None and 'artist' not in self.errors_found:
                 try:
-                    self.albumArtist = "".join(songMetadata['artist'])
+                    self.artist = "".join(song_metadata['artist'])
                 except:
-                    self.errorsFound.append('albumArtist')
+                    self.errors_found.append('artist')
             try:
-                self.songList.append((int("".join(songMetadata['tracknumber'])), song))
+                self.song_list.append((int("".join(song_metadata['tracknumber'])), song))
             except:
-                self.errorsFound.append('Missing Track Number')
-                self.songList.append(song)
-            if self.albumImage is None and 'albumImage' not in self.errorsFound:
+                self.errors_found.append('Missing Track Number')
+                self.song_list.append(song)
+
+            if self.image is None and 'image' not in self.errors_found:
                 try:
-                    for item in songMetadata.pictures:
+                    for item in song_metadata.pictures:
                         if 'jpeg' in item.mime:
-                            artfilepath = os.path.join(musicLocation, album, "{}_album_art.jpg".format("".join(songMetadata['album'])))
-                            albumartFile = open(artfilepath, 'wb')
-                            albumartFile.write(item.data)
-                            self.albumImage = artfilepath
+                            art_file_path = os.path.join(
+                                music_location,
+                                album,
+                                "{}_album_art.jpg".format("".join(song_metadata['album']))
+                            )
+
+                            album_art_file = open(art_file_path, 'wb')
+                            album_art_file.write(item.data)
+                            self.image = art_file_path
                 except:
-                    self.errorsFound.append('Missing Album Image')
+                    self.errors_found.append('Missing Album Image')
 
-    def errorReporting(self):
-        return self.errorsFound
+    def error_reporting(self):
+        return self.errors_found
 
 
-def albumListSlicer(cP, numberofPages, totalAlbums):
-    if cP > int(numberofPages[0]):
-        beginSlice = 20*(cP - 1)
-        endSlice = (0.1*int(numberofPages[2])*20) + beginSlice
-        return (beginSlice, endSlice)
+def album_list_slicer(cP, number_of_pages, total_albums):
+    if cP > int(number_of_pages[0]):
+        begin_slice = 20*(cP - 1)
+        end_slice = (0.1 * int(number_of_pages[2]) * 20) + begin_slice
+        return begin_slice, end_slice
     else:
-        return (20*cP, (20*cP)+20)
+        return 20*cP, (20*cP)+20
 
 
+MDsMusic = MusicLibrary('/usr/media')
+MDsMusic.list_albums()
 
-MDsMusic = musicLibrary('/usr/media')
-MDsMusic.listAlbums()
+for key in MDsMusic.album_dict.keys():
+    MDsMusic.update_album_dict(key, Album())
+    MDsMusic.album_dict[key].update_metadata(key, MDsMusic.music_location)
 
-for k in MDsMusic.albumDict.keys():
-    MDsMusic.updateAlbumDict(k, album())
-    MDsMusic.albumDict[k].updateAlbumMetadata(k, MDsMusic.musicLocation)
-
-MDsMusic.sortbyAlbum()
-MDsMusic.sortbyArtist()
-MDsMusic.sortbyYear()
-
+MDsMusic.sort_by_album()
+MDsMusic.sort_by_artist()
+MDsMusic.sort_by_year()
 
 
 waltz = Flask(__name__)
+waltz.secret_key = 'notsecret'
 
-waltz.secret_key='notsecret'
 
 @waltz.route("/")
-def main():
+def home():
     session['currentPage'] = 0
     print(session['currentPage'])
-    return render_template('newsite.html', song_list_sorted=MDsMusic.albumSorted[0:20],
-    library_dict=MDsMusic.albumDict, previousButton='/', moreButton='/more_albums')
+    return render_template(
+        'newsite.html',
+        song_list_sorted=MDsMusic.album_sorted[0:20],
+        library_dict=MDsMusic.album_dict,
+        previousButton='/',
+        moreButton='/more_albums'
+    )
+
 
 @waltz.route('/more_albums')
-def moreAlbums():
-    if session['currentPage'] < int(len(MDsMusic.albumSorted)/20):
-        session['currentPage'] +=1
-    slices = albumListSlicer(session['currentPage'], str(len(MDsMusic.albumSorted)/20), MDsMusic.librarySize)
+def more_albums():
+    if session['currentPage'] < int(len(MDsMusic.album_sorted)/20):
+        session['currentPage'] += 1
+    slices = album_list_slicer(session['currentPage'], str(len(MDsMusic.album_sorted) / 20), MDsMusic.library_size)
     print(session['currentPage'])
-    return render_template('newsite.html', song_list_sorted=MDsMusic.albumSorted[slices[0]:slices[1]],
-    library_dict=MDsMusic.albumDict, previousButton='/previous_albums', moreButton='/more_albums')
+
+    return render_template(
+        'newsite.html',
+        song_list_sorted=MDsMusic.album_sorted[slices[0]:slices[1]],
+        library_dict=MDsMusic.album_dict,
+        previousButton='/previous_albums',
+        moreButton='/more_albums'
+    )
+
 
 @waltz.route('/previous_albums')
-def previousAlbums():
+def previous_albums():
     if session['currentPage'] > 0:
-        session['currentPage'] -=1
-    slices = albumListSlicer(session['currentPage'], str(len(MDsMusic.albumSorted)/20), MDsMusic.librarySize)
+        session['currentPage'] -= 1
+    slices = album_list_slicer(session['currentPage'], str(len(MDsMusic.album_sorted) / 20), MDsMusic.library_size)
     print(session['currentPage'])
-    return render_template('newsite.html', song_list_sorted=MDsMusic.albumSorted[slices[0]:slices[1]],
-    library_dict=MDsMusic.albumDict, previousButton='/previous_albums', moreButton='/more_albums')
+
+    return render_template(
+        'newsite.html',
+        song_list_sorted=MDsMusic.album_sorted[slices[0]:slices[1]],
+        library_dict=MDsMusic.album_dict,
+        previousButton='/previous_albums',
+        moreButton='/more_albums'
+    )
 
 
 @waltz.route('/artists')
-def loadArtists():
+def load_artists():
     session['currentPage'] = 0
     print(session['currentPage'])
-    return render_template('newsite.html', song_list_sorted=MDsMusic.artistSorted[0:20],
-    library_dict=MDsMusic.albumDict, previousButton='/previous_artists', moreButton='/more_artists')
+
+    return render_template(
+        'newsite.html',
+        song_list_sorted=MDsMusic.artist_sorted[0:20],
+        library_dict=MDsMusic.album_dict,
+        previousButton='/previous_artists',
+        moreButton='/more_artists'
+    )
+
 
 @waltz.route('/more_artists')
-def moreArtists():
-    if session['currentPage'] < int(len(MDsMusic.artistSorted)/20):
-        session['currentPage'] +=1
-    slices = albumListSlicer(session['currentPage'], str(len(MDsMusic.artistSorted)/20), MDsMusic.librarySize)
+def more_artists():
+    if session['currentPage'] < int(len(MDsMusic.artist_sorted)/20):
+        session['currentPage'] += 1
+    slices = album_list_slicer(session['currentPage'], str(len(MDsMusic.artist_sorted) / 20), MDsMusic.library_size)
     print(session['currentPage'])
-    return render_template('newsite.html', song_list_sorted=MDsMusic.artistSorted[slices[0]:slices[1]],
-    library_dict=MDsMusic.albumDict, previousButton='/previous_artists', moreButton='/more_artists')
+
+    return render_template(
+        'newsite.html',
+        song_list_sorted=MDsMusic.artist_sorted[slices[0]:slices[1]],
+        library_dict=MDsMusic.album_dict,
+        previousButton='/previous_artists',
+        moreButton='/more_artists'
+    )
+
 
 @waltz.route('/previous_artists')
-def previousArtists():
+def previous_artists():
     if session['currentPage'] > 0:
-        session['currentPage'] -=1
-    slices = albumListSlicer(session['currentPage'], str(len(MDsMusic.artistSorted)/20), MDsMusic.librarySize)
+        session['currentPage'] -= 1
+    slices = album_list_slicer(session['currentPage'], str(len(MDsMusic.artist_sorted) / 20), MDsMusic.library_size)
     print(session['currentPage'])
-    return render_template('newsite.html', song_list_sorted=MDsMusic.artistSorted[slices[0]:slices[1]],
-    library_dict=MDsMusic.albumDict, previousButton='/previous_artists', moreButton='/more_artists')
+
+    return render_template(
+        'newsite.html',
+        song_list_sorted=MDsMusic.artist_sorted[slices[0]:slices[1]],
+        library_dict=MDsMusic.album_dict,
+        previousButton='/previous_artists',
+        moreButton='/more_artists'
+    )
 
 
 @waltz.route('/years')
-def loadYears():
+def load_years():
     session['currentPage'] = 0
     print(session['currentPage'])
-    return render_template('newsite.html', song_list_sorted=MDsMusic.yearSorted[0:20],
-    library_dict=MDsMusic.albumDict, previousButton='/previous_years', moreButton='/more_years')
+
+    return render_template(
+        'newsite.html',
+        song_list_sorted=MDsMusic.year_sorted[0:20],
+        library_dict=MDsMusic.album_dict,
+        previousButton='/previous_years',
+        moreButton='/more_years'
+    )
+
 
 @waltz.route('/more_years')
-def moreYears():
-    if session['currentPage'] < int(len(MDsMusic.yearSorted)/20):
-        session['currentPage'] +=1
+def more_years():
+    if session['currentPage'] < int(len(MDsMusic.year_sorted)/20):
+        session['currentPage'] += 1
     print(session['currentPage'])
-    slices = albumListSlicer(session['currentPage'], str(len(MDsMusic.yearSorted)/20), MDsMusic.librarySize)
-    return render_template('newsite.html', song_list_sorted=MDsMusic.yearSorted[slices[0]:slices[1]],
-    library_dict=MDsMusic.albumDict, previousButton='/previous_years', moreButton='/more_years')
+    slices = album_list_slicer(session['currentPage'], str(len(MDsMusic.year_sorted) / 20), MDsMusic.library_size)
+
+    return render_template(
+        'newsite.html',
+        song_list_sorted=MDsMusic.year_sorted[slices[0]:slices[1]],
+        library_dict=MDsMusic.album_dict,
+        previousButton='/previous_years',
+        moreButton='/more_years'
+    )
+
 
 @waltz.route('/previous_years')
-def previousYears():
+def previous_years():
     if session['currentPage'] > 0:
-        session['currentPage'] -=1
+        session['currentPage'] -= 1
     print(session['currentPage'])
-    slices = albumListSlicer(session['currentPage'], str(len(MDsMusic.yearSorted)/20), MDsMusic.librarySize)
-    return render_template('newsite.html', song_list_sorted=MDsMusic.yearSorted[slices[0]:slices[1]],
-    library_dict=MDsMusic.albumDict, previousButton='/previous_years', moreButton='/more_years')
+    slices = album_list_slicer(session['currentPage'], str(len(MDsMusic.year_sorted) / 20), MDsMusic.library_size)
+
+    return render_template(
+        'newsite.html',
+        song_list_sorted=MDsMusic.year_sorted[slices[0]:slices[1]],
+        library_dict=MDsMusic.album_dict,
+        previousButton='/previous_years',
+        moreButton='/more_years'
+    )
 
 if __name__ == '__main__':
     waltz.run()
