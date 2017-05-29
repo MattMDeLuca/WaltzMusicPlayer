@@ -219,6 +219,10 @@ class Album:
 
         for song in track_list:
             song_metadata = mutagen.File(os.path.join(music_location, album, song))
+
+            # It looks like you're assuming the metadata will be the same for all the tracks in an album.
+            # Since self.errors_found isn't reset between tracks, if there's an error finding the title metadata for
+            # track 2, it wont even attempt to retrieve the title metadata for the rest of the tracks (for example)
             if self.title is None and 'albumTitle' not in self.errors_found:
                 try:
                     self.title = "".join(song_metadata['album'])
