@@ -77,3 +77,12 @@ class Album:
 
     def error_reporting(self):
         return self.errors_found
+
+
+def list_slicer(cP, number_of_pages, total_albums):
+    if cP > int(number_of_pages[0]):
+        begin_slice = 20*(cP - 1)
+        end_slice = (0.1 * int(number_of_pages[2]) * 20) + begin_slice
+        return begin_slice, end_slice
+    else:
+        return 20*cP, (20*cP) + 20

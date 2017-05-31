@@ -2,7 +2,7 @@ from flask import Flask, render_template, session
 import datetime
 import os
 import logging
-from libs import _album
+from libs import albums
 
 
 class MusicLibrary:
@@ -22,7 +22,7 @@ class MusicLibrary:
         self.list_albums()
 
         for key in self.album_dict.keys():
-            self.update_album_dict(key, _album.Album())
+            self.update_album_dict(key, albums.Album())
             self.album_dict[key].update_metadata(key, self.music_location)
 
         self.sort_by_album()
@@ -69,14 +69,6 @@ class MusicLibrary:
             self.year_sorted.append((count, item[1]))
 
 
-def album_list_slicer(cP, number_of_pages, total_albums):
-    if cP > int(number_of_pages[0]):
-        begin_slice = 20*(cP - 1)
-        end_slice = (0.1 * int(number_of_pages[2]) * 20) + begin_slice
-        return begin_slice, end_slice
-    else:
-        return 20*cP, (20*cP)+20
-
 waltz = Flask(__name__)
 waltz.secret_key = 'notsecret'
 
@@ -98,7 +90,7 @@ def home():
 def more_albums():
     if session['currentPage'] < int(len(player.album_sorted) / 20):
         session['currentPage'] += 1
-    slices = album_list_slicer(session['currentPage'], str(len(player.album_sorted) / 20), player.library_size)
+    slices = albums.list_slicer(session['currentPage'], str(len(player.album_sorted) / 20), player.library_size)
     print(session['currentPage'])
 
     return render_template(
@@ -114,7 +106,7 @@ def more_albums():
 def previous_album():
     if session['currentPage'] > 0:
         session['currentPage'] -= 1
-    slices = album_list_slicer(session['currentPage'], str(len(player.album_sorted) / 20), player.library_size)
+    slices = albums.list_slicer(session['currentPage'], str(len(player.album_sorted) / 20), player.library_size)
     print(session['currentPage'])
 
     return render_template(
@@ -144,7 +136,7 @@ def load_artists():
 def more_artists():
     if session['currentPage'] < int(len(player.artist_sorted) / 20):
         session['currentPage'] += 1
-    slices = album_list_slicer(session['currentPage'], str(len(player.artist_sorted) / 20), player.library_size)
+    slices = albums.list_slicer(session['currentPage'], str(len(player.artist_sorted) / 20), player.library_size)
     print(session['currentPage'])
 
     return render_template(
@@ -160,7 +152,7 @@ def more_artists():
 def previous_artists():
     if session['currentPage'] > 0:
         session['currentPage'] -= 1
-    slices = album_list_slicer(session['currentPage'], str(len(player.artist_sorted) / 20), player.library_size)
+    slices = albums.list_slicer(session['currentPage'], str(len(player.artist_sorted) / 20), player.library_size)
     print(session['currentPage'])
 
     return render_template(
@@ -191,7 +183,7 @@ def more_years():
     if session['currentPage'] < int(len(player.year_sorted) / 20):
         session['currentPage'] += 1
     print(session['currentPage'])
-    slices = album_list_slicer(session['currentPage'], str(len(player.year_sorted) / 20), player.library_size)
+    slices = albums.list_slicer(session['currentPage'], str(len(player.year_sorted) / 20), player.library_size)
 
     return render_template(
         'newsite.html',
@@ -207,7 +199,7 @@ def previous_years():
     if session['currentPage'] > 0:
         session['currentPage'] -= 1
     print(session['currentPage'])
-    slices = album_list_slicer(session['currentPage'], str(len(player.year_sorted) / 20), player.library_size)
+    slices = albums.list_slicer(session['currentPage'], str(len(player.year_sorted) / 20), player.library_size)
 
     return render_template(
         'newsite.html',
